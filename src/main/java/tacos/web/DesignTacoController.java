@@ -19,13 +19,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
 @Slf4j
+@SessionAttributes("tacoOrder")
 @Controller
 @RequestMapping("/design")
-@SessionAttributes("tacoOrder")
 public class DesignTacoController {
 
 @ModelAttribute
@@ -50,6 +53,11 @@ public void addIngredientsToModel(Model model) {
 	}
 }
 
+@ModelAttribute(name = "tacoOrder")
+public TacoOrder order() {
+	return new TacoOrder();
+}
+
 @ModelAttribute(name = "taco")
 public Taco taco() {
 	return new Taco();
@@ -59,6 +67,14 @@ public Taco taco() {
 public String showDesignForm() {
     return "design";
 }
+
+@PostMapping
+public String processTaco(Taco taco, @ModelAttribute TacoOrder tacoOrder) {
+	tacoOrder.addTaco(taco);
+	log.info("Processing taco: {}", taco);
+	return "redirect:/orders/current";
+}
+
 
 private Iterable<Ingredient> filterByType(
 	List<Ingredient> ingredients, Type type) {
